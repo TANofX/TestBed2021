@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -23,7 +25,8 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-
+private static final int SPARK_CHANNEL=0; //TODO find real channel id for spark
+private static final CANSparkMax motor = new CANSparkMax(SPARK_CHANNEL, MotorType.kBrushless);
   private static final WPI_TalonFX left = new WPI_TalonFX(12);
   private static final WPI_TalonFX right = new WPI_TalonFX(13);
 
@@ -91,6 +94,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     driveBase.arcadeDrive(xbox.getRawAxis(0), xbox.getRawAxis(1));
+    motor.set(xbox.getRawAxis(11));
   }
 
   /** This function is called once when the robot is disabled. */
