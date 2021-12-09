@@ -6,8 +6,11 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,6 +29,11 @@ public class Robot extends TimedRobot {
 
   private static final WPI_TalonFX left = new WPI_TalonFX(12);
   private static final WPI_TalonFX right = new WPI_TalonFX(13);
+
+  private static final Solenoid single = new Solenoid(null, 2);
+  private static final DoubleSolenoid multiple =  new DoubleSolenoid(null, 0, 1);
+  private boolean doubleSolenoidControl = false;
+
 
   private static final DifferentialDrive driveBase = new DifferentialDrive(left, right);
 
@@ -91,6 +99,21 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     driveBase.arcadeDrive(xbox.getRawAxis(0), xbox.getRawAxis(1));
+   
+if (xbox.getAButton()) {
+    single.set(true);
+  } else {
+    single.set(false);
+    /**can use single.set(xbox.getAButton()); to do the same as the if statement (but easier) */
+
+if (xbox.getBButtonPressed()) {
+  multiple.set(Value.kForward);
+  } else {
+    multiple.set(Value.kOff);
+  }
+  }
+
+
   }
 
   /** This function is called once when the robot is disabled. */
