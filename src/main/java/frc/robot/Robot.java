@@ -5,7 +5,9 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.fasterxml.jackson.annotation.JacksonInject.Value;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -31,6 +33,9 @@ public class Robot extends TimedRobot {
 
   private static final XboxController xbox = new XboxController(0);
 
+  private static final AnalogInput analog = new AnalogInput(2);
+
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -40,6 +45,8 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+   
   }
 
   /**
@@ -50,7 +57,11 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+
+   
+
+  }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -91,8 +102,22 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     driveBase.arcadeDrive(xbox.getRawAxis(0), xbox.getRawAxis(1));
+
+    SmartDashboard.putBoolean("Analog Input", limit(3.3));
+    SmartDashboard.putNumber("Limit Value", analog.getVoltage());
+
   }
 
+
+  private boolean limit(double value) {
+      if (analog.getVoltage() < value) {
+        return false;
+    }
+    else {
+      return true;
+    }
+  }
+  
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {}
