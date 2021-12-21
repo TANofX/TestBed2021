@@ -8,6 +8,9 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.fasterxml.jackson.annotation.JacksonInject.Value;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -15,9 +18,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to each mode, as described in the TimedRobot
+ * documentation. If you change the name of this class or the package after
+ * creating this project, you must also update the build.gradle file in the
  * project.
  */
 public class Robot extends TimedRobot {
@@ -29,6 +33,11 @@ public class Robot extends TimedRobot {
   private static final WPI_TalonFX left = new WPI_TalonFX(12);
   private static final WPI_TalonFX right = new WPI_TalonFX(13);
 
+  private static final Solenoid single = new Solenoid(PneumaticsModuleType.CTREPCM, 2);
+  private static final DoubleSolenoid multiple = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+  private boolean doubleSolenoidControl = false;
+  private boolean wasButtonPressed = false;
+
   private static final DifferentialDrive driveBase = new DifferentialDrive(left, right);
 
   private static final XboxController xbox = new XboxController(0);
@@ -37,8 +46,8 @@ public class Robot extends TimedRobot {
 
 
   /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
+   * This function is run when the robot is first started up and should be used
+   * for any initialization code.
    */
   @Override
   public void robotInit() {
@@ -50,28 +59,29 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
+   * This function is called every robot packet, no matter the mode. Use this for
+   * items like diagnostics that you want ran during disabled, autonomous,
+   * teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {
-
-   
-
   }
 
   /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
+   * This autonomous (along with the chooser code above) shows how to select
+   * between different autonomous modes using the dashboard. The sendable chooser
+   * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
+   * remove all of the chooser code and uncomment the getString line to get the
+   * auto name from the text box below the Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
-   * chooser code above as well.
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure below with additional strings. If using the SendableChooser
+   * make sure to add them to the chooser code above as well.
    */
   @Override
   public void autonomousInit() {
@@ -96,7 +106,8 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+  }
 
   /** This function is called periodically during operator control. */
   @Override
@@ -105,6 +116,33 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putBoolean("Analog Input", limit(3.3));
     SmartDashboard.putNumber("Limit Value", analog.getVoltage());
+    if (xbox.getAButton()) {
+      single.set(true);
+    } else {
+      single.set(false);
+    }
+    /**
+     * can use single.set(xbox.getAButton()); to do the same as the if statement
+     * (but easier)
+     */
+
+    if (xbox.getBButton()) {
+      if (!wasButtonPressed) {
+        doubleSolenoidControl = !doubleSolenoidControl;
+
+        if (doubleSolenoidControl) {
+          multiple.set(DoubleSolenoid.Value.kForward);
+        } else {
+          multiple.set(DoubleSolenoid.Value.kReverse);
+        }
+      }
+      wasButtonPressed = true;
+    } else {
+      if (wasButtonPressed) {
+        multiple.set(DoubleSolenoid.Value.kOff);
+      }
+      wasButtonPressed = false;
+    }
 
   }
 
@@ -120,17 +158,21 @@ public class Robot extends TimedRobot {
   
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+  }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 }
